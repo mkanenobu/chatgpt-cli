@@ -1,6 +1,7 @@
 {
   "name": "@mkanenobu/chatgpt-cli",
-  "version": "0.1.2",
+  "version": "0.1.3",
+  "license": "MIT",
   "bin": "./dist/main.js",
   "author": {
     "name": "mkanenobu"
