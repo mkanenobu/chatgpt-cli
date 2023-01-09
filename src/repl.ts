@@ -1,4 +1,5 @@
 import * as readline from "node:readline";
+import { Spinner } from "cli-spinner";
 import { extractResponseText, sendRequest } from "./openai";
 import { getSpeak } from "./config";
 import { speak } from "./speak";
@@ -22,17 +23,26 @@ export const startRepl = () => {
   let buf = "";
   const isSpeak = getSpeak();
 
+  const spinner = new Spinner({
+    text: "Waiting for response... %s",
+  });
+
   const onSend = async (buf: string) => {
     const trimmed = buf.trim();
     if (trimmed.length !== 0) {
-      console.log("Waiting for response...");
-      await sendRequest(trimmed).then((res) => {
-        const texts = extractResponseText(res);
-        isSpeak && speak(texts.join(" "));
-        texts.forEach((text) => {
-          console.log(text);
+      spinner.start();
+      await sendRequest(trimmed)
+        .then((res) => {
+          const texts = extractResponseText(res);
+          isSpeak && speak(texts.join(" "));
+          console.log();
+          texts.forEach((text) => {
+            console.log(text);
+          });
+        })
+        .finally(() => {
+          spinner.stop();
         });
-      });
     }
   };
 
