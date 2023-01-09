@@ -1,5 +1,5 @@
 {
-  "name": "chatgpt-cli",
+  "name": "@mkanenobu/chatgpt-cli",
   "version": "0.1.0",
   "bin": "./dist/main.js",
   "author": {
