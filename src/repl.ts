@@ -1,9 +1,10 @@
 import * as readline from "node:readline";
 import { Spinner } from "cli-spinner";
 import { extractResponseText, sendRequest } from "./openai";
-import { getSpeak } from "./config";
+import { getGlow, getSpeak } from "./config";
 import { speak } from "./speak";
 import { ChildProcess } from "child_process";
+import { glowing, isGlowAvailable } from "./glow";
 
 const helpText = `Commands:
   .exit  - Exit
@@ -21,6 +22,7 @@ export const startRepl = () => {
   let buf = "";
   let speakProcess: ChildProcess | undefined = undefined;
   const isSpeak = getSpeak();
+  const isGlow = getGlow() && isGlowAvailable();
 
   const spinner = new Spinner({
     text: "Waiting for response... %s",
@@ -31,7 +33,7 @@ export const startRepl = () => {
     return sendRequest(prompt)
       .then((res) => {
         const text = extractResponseText(res);
-        console.log(text);
+        console.log(isGlow ? glowing(text) : text);
         if (isSpeak) {
           speakProcess?.kill();
           speakProcess = speak(text);

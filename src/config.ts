@@ -27,7 +27,8 @@ const getConfig = () => {
   const cliOptions = configByCliOptions();
   return {
     apiKey: cliOptions["api-key"] ?? byFile.apiKey,
-    speak: cliOptions.speak ?? byFile.speak,
+    speak: cliOptions.speak === "true" || byFile.speak === true,
+    glow: byFile.glow === true,
   };
 };
 
@@ -50,5 +51,9 @@ export const getApiKey = (): string => {
 };
 
 export const getSpeak = (): boolean => {
-  return !!config().speak;
+  return config().speak;
+};
+
+export const getGlow = (): boolean => {
+  return config().glow;
 };
