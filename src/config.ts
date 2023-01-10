@@ -22,20 +22,33 @@ const configByCliOptions = () =>
     args: process.argv.slice(2),
   }).values;
 
+const getConfig = () => {
+  const byFile = configByFile();
+  const cliOptions = configByCliOptions();
+  return {
+    apiKey: cliOptions["api-key"] ?? byFile.apiKey,
+    speak: cliOptions.speak ?? byFile.speak,
+  };
+};
+
+let _config: ReturnType<typeof getConfig>;
+
+export const config = () => {
+  if (!_config) {
+    _config = getConfig();
+  }
+  return _config;
+};
+
 export const getApiKey = (): string => {
-  const apiKey = configByCliOptions()["api-key"] || configByFile().apiKey;
-  if (typeof apiKey !== "string") {
+  if (typeof config().apiKey !== "string") {
     throw new Error(
       "API key is not set or is not a string, Set it with --apiKey or ~/.config/chatgpt-cli/config.json"
     );
   }
-  return apiKey;
+  return config().apiKey;
 };
 
 export const getSpeak = (): boolean => {
-  const byConfig = configByCliOptions().speak as string | undefined;
-  const speak: undefined | boolean =
-    (byConfig && byConfig === "true") || configByFile().speak;
-
-  return !!speak;
+  return !!config().speak;
 };

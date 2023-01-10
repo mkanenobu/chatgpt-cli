@@ -11,7 +11,7 @@
     "start": "tsx main.ts",
     "build": "tsx scripts/build.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "tc": "tsc --noEmit main.ts",
+    "tc": "tsc --noEmit",
     "prepack": "run-s build"
   },
   "devDependencies": {
