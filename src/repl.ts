@@ -3,11 +3,9 @@ import { Spinner } from "cli-spinner";
 import { extractResponseText, sendRequest } from "./openai";
 import { getSpeak } from "./config";
 import { speak } from "./speak";
+import { ChildProcess } from "child_process";
 
 const helpText = `Commands:
-  .send  - Send the message to OpenAI
-  .show  - Show message buffer
-  .clear - Clear buffer
   .exit  - Exit
   .help  - Show this help text
 `;
@@ -21,56 +19,40 @@ const rl = readline.createInterface({
 
 export const startRepl = () => {
   let buf = "";
+  let speakProcess: ChildProcess | undefined = undefined;
   const isSpeak = getSpeak();
 
   const spinner = new Spinner({
     text: "Waiting for response... %s",
   });
 
-  const onSend = async (buf: string) => {
-    const trimmed = buf.trim();
-    if (trimmed.length !== 0) {
-      spinner.start();
-      await sendRequest(trimmed)
-        .then((res) => {
-          const texts = extractResponseText(res);
-          isSpeak && speak(texts.join(" "));
-          console.log();
-          texts.forEach((text) => {
-            console.log(text);
-          });
-        })
-        .finally(() => {
-          spinner.stop();
-        });
-    }
+  const onSend = async (prompt: string) => {
+    spinner.start();
+    return sendRequest(prompt)
+      .then((res) => {
+        const text = extractResponseText(res);
+        console.log(text);
+        if (isSpeak) {
+          speakProcess?.kill();
+          speakProcess = speak(text);
+        }
+      })
+      .finally(() => {
+        spinner.stop();
+      });
   };
 
   console.log(helpText);
+
   rl.prompt();
   rl.on("line", async (input) => {
     const trimmedInput = input.trim();
     switch (trimmedInput) {
-      case ".show": {
-        console.log(buf);
-        break;
-      }
-      case ".clear": {
-        buf = "";
-        console.log("Buffer cleared");
+      case "": {
         break;
       }
       case ".exit": {
         rl.close();
-        break;
-      }
-      case ".send": {
-        try {
-          await onSend(buf);
-          buf = "";
-        } catch (err) {
-          console.error("Failed to send", err);
-        }
         break;
       }
       case ".help": {
@@ -78,7 +60,12 @@ export const startRepl = () => {
         break;
       }
       default: {
-        buf += `\n${trimmedInput}`;
+        try {
+          await onSend(trimmedInput);
+          buf = "";
+        } catch (err) {
+          console.error("Failed to send", err);
+        }
       }
     }
 
@@ -86,6 +73,7 @@ export const startRepl = () => {
     rl.prompt();
   }).on("close", () => {
     console.log("\nBye!");
+    speakProcess?.kill();
     process.exit(0);
   });
 };

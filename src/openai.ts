@@ -11,16 +11,16 @@ export const sendRequest = (prompt: string) => {
   return openaiClient.createCompletion({
     model: "text-davinci-003",
     prompt,
-    temperature: 0.5,
-    max_tokens: 1024,
+    temperature: 0.7,
+    max_tokens: 512,
   });
 };
 
 export const extractResponseText = (
   res: Awaited<ReturnType<typeof sendRequest>>
-): string[] => {
+): string => {
   return res.data.choices
-    .map((choice) => choice.text?.split("\n").map((s) => s.trim()))
-    .flat()
-    .filter(Boolean) as string[];
+    .map((choice) => choice.text)
+    .filter(Boolean)
+    .join("\n");
 };

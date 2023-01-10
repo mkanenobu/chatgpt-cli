@@ -1,5 +1,5 @@
 import * as childProcess from "child_process";
 
 export const speak = (text: string) => {
-  childProcess.exec(`say ${text}`);
+  return childProcess.exec(`say ${text.split("\n").join(" ")}`);
 };
