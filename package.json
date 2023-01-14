@@ -1,8 +1,9 @@
 {
   "name": "@mkanenobu/chatgpt-cli",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "license": "MIT",
   "bin": "./dist/main.js",
+  "repository": "https://github.com/mkanenobu/chatgpt-cli",
   "author": {
     "name": "mkanenobu"
   },
